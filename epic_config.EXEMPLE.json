@@ -1,0 +1,6 @@
+{
+  "EPIC_CLIENT_ID": "TON_CLIENT_ID_ICI",
+  "EPIC_CLIENT_SECRET": "TON_CLIENT_SECRET_ICI",
+  "REDIRECT_URI": "http://localhost:8000/auth/callback",
+  "SCOPE": "basic_profile"
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOOTCHECK.GG — Combien t'as mis sur Fortnite ? + Valeur Casier</title>
+<meta name="description" content="Connexion Epic OAuth2 réelle, boutique live, news, convertisseur V-Bucks, estimation casier.">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo"><img src="logo.svg" alt="logo" class="logo-img"> LOOT<span class="accent">CHECK</span>.GG</div>
+    <div class="nav-links">
+      <a href="#hero">Accueil</a>
+      <a href="#shop">Boutique Live</a>
+      <a href="#news">News</a>
+      <a href="#stats">Stats</a>
+      <a href="#connect">Epic</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#tools">Outils</a>
+    </div>
+    <div id="navUser">
+      <button id="btnNavLogin" class="btn-epic">Connecter avec Epic Games</button>
+    </div>
+  </div>
+</nav>
+
+<header id="hero" class="hero">
+  <video class="hero-video" autoplay muted loop playsinline poster="https://cdn2.unrealengine.com/fortnite-home-page-key-art-1920x1080-7d9b6b0d8c8d.jpg">
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-neon-gaming-controller-close-up-44221-large.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="badge">⚡ LOOTCHECK.GG • SAISON 2026 • 100% GRATUIT • API RÉELLES</div>
+      <div id="modeBanner" style="margin:10px 0;padding:10px 14px;border-radius:10px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);font-size:.9rem">⏳ Vérification mode RÉEL / DÉMO…</div>
+      <h1>COMBIEN<br><span class="stroke">T'AS VRAIMENT</span><br>MIS SUR <span class="accent">FORTNITE</span> ?</h1>
+      <p class="subtitle">Vraie connexion <b>Epic Games OAuth2</b> via <code>/auth/login</code>, boutique du jour en live via <b>fortnite-api.com</b>, news officielles, convertisseur V-Bucks → €, et <b>estimation de ton casier</b>.</p>
+      <div class="cta-row">
+        <button id="btnHeroLogin" class="btn-epic big">🎮 Se connecter avec Epic Games</button>
+        <button id="btnDemo" class="btn-ghost big">Voir la démo sans compte</button>
+      </div>
+      <div class="api-badges">
+        <span>✅ Epic OAuth2</span><span>✅ Shop Live API</span><span>✅ News API</span><span>✅ Skins API</span><span id="apiStatus">⏳ test API…</span>
+      </div>
+      <div class="hero-stats">
+        <div><b id="statUsers">12 847</b><span>comptes analysés</span></div>
+        <div><b>4,2M €</b><span>V-Bucks trackés</span></div>
+        <div><b>~386 €</b><span>valeur casier moyenne</span></div>
+      </div>
+      <p class="disclaimer">⚠️ Epic OAuth donne pseudo + accountId uniquement. L'historique € n'est pas exposé par Epic → tu confirmes via <a href="https://www.epicgames.com/account/transactions" target="_blank">tes transactions Epic</a>. Casier estimé via prix boutique.</p>
+    </div>
+    <div class="hero-right">
+      <div class="char-stack">
+        <div class="char-card main">
+          <img src="https://fortnite-api.com/images/cosmetics/br/cid_028_athena_commando_f/featured.png" alt="Renegade Raider" onerror="this.src='https://fortnite-api.com/images/cosmetics/br/cid_001_athena_commando_f_default/featured.png'">
+          <div class="char-tag legendary">LEGENDARY • 2000 V-Bucks</div>
+          <div class="char-name">RENEGADE RAIDER</div>
+        </div>
+        <div class="char-card small left">
+          <img src="https://fortnite-api.com/images/cosmetics/br/cid_030_athena_commando_m_blackknight_shield/featured.png" alt="Black Knight" onerror="this.src='https://fortnite-api.com/images/cosmetics/br/cid_001_athena_commando_f_default/featured.png'">
+          <div class="char-name mini">BLACK KNIGHT</div>
+        </div>
+        <div class="char-card small right">
+          <img src="https://fortnite-api.com/images/cosmetics/br/cid_001_athena_commando_f_default/featured.png" alt="Default Skin">
+          <div class="char-name mini">OG DEFAULT</div>
+        </div>
+        <div class="float-price p1">+2 800 V-Bucks • 24,99€</div>
+        <div class="float-price p2">Casier estimé : 1 247€ 🔥</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- BOUTIQUE LIVE -->
+<section id="shop" class="section">
+  <h2>🛒 BOUTIQUE <span class="accent">LIVE</span> <small class="muted">API fortnite-api.com</small></h2>
+  <p>Objets du jour en direct, avec prix V-Bucks + conversion €. <button id="btnReloadShop" class="btn-ghost">↻ Actualiser</button> <small id="shopDate" class="muted"></small></p>
+  <div id="shopGrid" class="shop-grid">⏳ Chargement boutique…</div>
+</section>
+
+<!-- NEWS -->
+<section id="news" class="section">
+  <h2>📰 NEWS <span class="accent">FORTNITE</span> <small class="muted">API live</small></h2>
+  <div id="newsGrid" class="news-grid">⏳ Chargement news…</div>
+</section>
+
+<!-- STATS -->
+<section id="stats" class="section">
+  <h2>🏆 STATS <span class="accent">JOUEUR</span></h2>
+  <div class="panel">
+    <p>Ouvre ton profil public (K/D, wins, niveau) via fortnite.gg — relié à ton pseudo Epic :</p>
+    <div class="form-row">
+      <input id="statsPseudo" type="text" placeholder="Pseudo Epic / Fortnite (ex: Srylee_TV)">
+      <button id="btnStats" class="btn-epic">Voir stats ↗</button>
+      <button id="btnStatsUse" class="btn-ghost">Utiliser mon pseudo connecté</button>
+    </div>
+    <p class="muted">API de stats détaillées (Tracker) demandent une clé privée — on te redirige vers la fiche publique officielle, 100% réelle.</p>
+  </div>
+</section>
+
+<section id="trailer" class="section trailer">
+  <h2>🎬 <span class="accent">AMBIANCE</span> BATTLE ROYALE</h2>
+  <div class="video-grid">
+    <div class="video-main">
+      <iframe src="https://www.youtube-nocookie.com/embed/2gUtfBmw86Y?rel=0" title="Fortnite Battle Royale - Trailer officiel" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <p class="muted" style="margin-top:8px">Si la vidéo ne s'affiche pas (bloqueur/pub) : <a href="https://www.youtube.com/watch?v=2gUtfBmw86Y" target="_blank" style="color:#22d3ee">ouvrir sur YouTube ↗</a></p>
+    </div>
+    <div class="video-side">
+      <img src="logo.svg" alt="Lootcheck logo" style="height:120px;object-fit:contain;background:rgba(255,255,255,.05);padding:20px">
+      <div class="side-card">
+        <h3>💎 Pourquoi estimer ton casier ?</h3>
+        <ul>
+          <li>✅ Total réel investi (V-Bucks + Crew + Packs)</li>
+          <li>✅ Valeur OG (Renegade, Skull, Ghoul…)</li>
+          <li>✅ Preuve ancienneté Saison 1-3</li>
+          <li>✅ Partage ton casier en 1 lien (export JSON)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="connect" class="section connect">
+  <h2>🔗 CONNEXION <span class="accent">EPIC GAMES RÉELLE</span></h2>
+  <div class="connect-grid">
+    <div class="epic-card">
+      <img class="epic-logo" src="https://upload.wikimedia.org/wikipedia/commons/3/31/Epic_Games_logo.svg" alt="Epic Games" onerror="this.style.display='none'">
+      <h3>OAuth2 officiel</h3>
+      <p>Flow réel : <code>/auth/login → epicgames.com/id/authorize → /auth/callback → /api/me</code></p>
+      <p class="muted">Si <b>MODE DÉMO</b> : remplis <b>epic_config.json</b> (voir README-EPIC-OAUTH.md + dev.epicgames.com). Sinon test démo :</p>
+      <input id="epicPseudo" type="text" placeholder="Ton pseudo Epic (ex: Srylee_TV)" maxlength="16">
+      <button id="btnEpicLogin" class="btn-epic big full">Se connecter avec Epic Games</button>
+      <button id="btnLogout" class="btn-ghost full hidden">Se déconnecter</button>
+      <div id="epicProfile" class="profile hidden"></div>
+      <div id="epicApiBox" class="hidden" style="margin-top:12px;text-align:left"></div>
+    </div>
+    <div class="steps">
+      <div class="step"><span>1</span><div><b>Vrai SSO Epic</b><br>email + mdp + 2FA sur epicgames.com, jamais sur notre site.</div></div>
+      <div class="step"><span>2</span><div><b>Shop + News live</b><br>Boutique et news chargées depuis fortnite-api.com.</div></div>
+      <div class="step"><span>3</span><div><b>Dépenses réelles</b><br>D'après epicgames.com/account/transactions.</div></div>
+      <div class="step"><span>4</span><div><b>Casier valorisé</b><br>Prix boutique auto + bonus OG, export partageable.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="dashboard" class="section dashboard locked">
+  <div id="lockOverlay" class="lock-overlay">
+    <div>🔒 <b>Connecte-toi avec Epic Games</b> pour débloquer ton dashboard perso.<br><button class="btn-epic" onclick="document.getElementById('connect').scrollIntoView({behavior:'smooth'})">Débloquer maintenant</button></div>
+  </div>
+  <h2>📊 TON <span class="accent">DASHBOARD</span> LOOTCHECK</h2>
+  <div class="kpi-row">
+    <div class="kpi spent"><span>Total dépensé</span><b id="kpiSpent">0,00 €</b><small id="kpiVbucks">0 V-Bucks achetés</small></div>
+    <div class="kpi locker"><span>Valeur casier estimée</span><b id="kpiLocker">0,00 €</b><small id="kpiLockerVb">0 V-Bucks de valeur</small></div>
+    <div class="kpi ratio"><span>Rentabilité</span><b id="kpiRatio">—</b><small id="kpiSkins">0 skins</small></div>
+  </div>
+  <div class="dash-grid">
+    <div class="panel">
+      <h3>💸 Combien t'as mis ? <small>(reçus Epic)</small></h3>
+      <div class="form-row">
+        <select id="packSelect">
+          <option value="8.99|1000">1 000 V-Bucks — 8,99 €</option>
+          <option value="24.99|2800">2 800 V-Bucks — 24,99 €</option>
+          <option value="36.99|5000">5 000 V-Bucks — 36,99 €</option>
+          <option value="89.99|13500">13 500 V-Bucks — 89,99 €</option>
+          <option value="11.99|1000">Crew Mensuel — 11,99 € (+1000 VB)</option>
+          <option value="4.49|0">Pack Starter — 4,49 €</option>
+          <option value="19.99|0">Pack Bundle — 19,99 €</option>
+          <option value="custom">Montant perso…</option>
+        </select>
+        <input id="customPrice" type="number" min="0" step="0.01" placeholder="€ perso" class="hidden" style="width:110px">
+        <button id="btnAddSpend" class="btn-epic">+ Ajouter</button>
+      </div>
+      <ul id="spendList" class="list"></ul>
+      <canvas id="chartSpend" height="160"></canvas>
+      <div class="row-btns">
+        <button id="btnExport" class="btn-ghost">⬇ Exporter JSON</button>
+        <button id="btnShare" class="btn-ghost">🔗 Copier lien casier</button>
+        <button id="btnResetSpend" class="btn-danger">Reset</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>🎒 Estimation du casier <small>(prix boutique)</small></h3>
+      <div class="form-row">
+        <input id="skinSearch" type="text" placeholder="Cherche un skin : Renegade, Drift, Midas…">
+        <button id="btnSkinSearch" class="btn-epic">🔍</button>
+        <button id="btnRandom" class="btn-ghost" title="Skin aléatoire">🎲</button>
+      </div>
+      <div class="form-row" style="margin-top:8px">
+        <select id="rarityFilter">
+          <option value="">Toutes raretés</option>
+          <option value="legendary">Legendary</option>
+          <option value="epic">Epic</option>
+          <option value="rare">Rare</option>
+          <option value="uncommon">Uncommon</option>
+          <option value="marvel">Marvel</option>
+          <option value="icon">Icon</option>
+        </select>
+      </div>
+      <div id="skinResults" class="skin-results"></div>
+      <h4>Ton casier (<span id="lockerCount">0</span>) — <small class="muted">import réel via Fortnite.GG</small></h4>
+      <div class="form-row">
+        <input id="ggPseudo" type="text" placeholder="Pseudo pour importer (ex: Srylee_TV)">
+        <button id="btnGgImport" class="btn-ghost">📥 Voir casier GG ↗</button>
+      </div>
+      <p class="muted">Epic ne donne le casier à aucune app tierce (même avec login). Méthode réelle : ouvre ton casier Fortnite.GG ci-dessus, puis ajoute chaque skin ci-dessous — prix boutique réels auto.</p>
+      <div id="lockerGrid" class="locker-grid"></div>
+      <div class="row-btns">
+        <button id="btnResetLocker" class="btn-danger">Vider casier</button>
+      </div>
+      <p class="muted">Legendary 2000 VB • Epic 1500 • Rare 1200 • Uncommon 800 • bonus OG +30%. 1000 VB = 8,99 €.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tools" class="section">
+  <h2>🧰 OUTILS <span class="accent">V-BUCKS</span></h2>
+  <div class="dash-grid">
+    <div class="panel">
+      <h3>💱 Convertisseur V-Bucks ↔ €</h3>
+      <div class="form-row"><input id="convVb" type="number" placeholder="V-Bucks (ex: 2000)"><button id="btnConvVb" class="btn-epic">→ €</button></div>
+      <div class="form-row" style="margin-top:8px"><input id="convEuro" type="number" placeholder="€ (ex: 24.99)"><button id="btnConvEuro" class="btn-epic">→ VB</button></div>
+      <p id="convOut" style="margin-top:10px;font-weight:800"></p>
+      <p class="muted">Base packs FR : 1000 = 8,99€.</p>
+    </div>
+    <div class="panel">
+      <h3>🎯 Verdict</h3>
+      <div id="verdict" style="font-size:1.1rem">Ajoute des dépenses + skins pour avoir ton verdict.</div>
+      <div class="row-btns"><button id="btnVerdict" class="btn-epic">Générer mon verdict</button></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo"><img src="logo.svg" alt="Lootcheck" style="width:40px;vertical-align:middle"> <b>LOOTCHECK.GG</b> — site fan non affilié à Epic Games. Fortnite © Epic Games.</div>
+  <div class="muted">APIs : Epic OAuth2 (login réel) + fortnite-api.com (shop/news/skins live) • Config : README-EPIC-OAUTH.md</div>
+</footer>
+
+<div id="epicModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><b>🔐 Epic Games SSO</b><button id="modalClose">✕</button></div>
+    <p>Mode démo — en RÉEL redirige vers epicgames.com/id/*</p>
+    <input id="modalPseudo" type="text" placeholder="Pseudo Epic">
+    <button id="modalGo" class="btn-epic big full">Continuer avec Epic</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

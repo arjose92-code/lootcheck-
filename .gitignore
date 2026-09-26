@@ -1,0 +1,4 @@
+@echo off
+__pycache__/
+*.pyc
+epic_config.json

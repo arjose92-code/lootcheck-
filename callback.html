@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connexion Epic…</title>
+<style>body{background:#0a0e1f;color:#fff;font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0}.box{background:#111736;padding:30px;border-radius:16px;text-align:center;max-width:420px}</style>
+</head>
+<body>
+<div class="box" id="box">⏳ Connexion Epic en cours…</div>
+<script>
+const q = new URLSearchParams(location.search);
+if(q.get('ok')){
+  document.getElementById('box').innerHTML = '✅ <b>Connecté avec Epic !</b><br>Redirection vers ton dashboard…';
+  setTimeout(()=>location.href='/#dashboard', 1200);
+} else {
+  const err = q.get('error') || 'inconnue';
+  document.getElementById('box').innerHTML = '❌ <b>Échec connexion Epic</b><br>Erreur: '+err+'<br><br><a href="/" style="color:#22d3ee">Retour</a><br><br><small>Vérifie epic_config.json + redirect URI sur dev.epicgames.com</small>';
+}
+</script>
+</body>
+</html>
