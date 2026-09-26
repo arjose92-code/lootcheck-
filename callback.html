@@ -13,7 +13,10 @@ if(q.get('ok')){
   setTimeout(()=>location.href='/#dashboard', 1200);
 } else {
   const err = q.get('error') || 'inconnue';
-  document.getElementById('box').innerHTML = '❌ <b>Échec connexion Epic</b><br>Erreur: '+err+'<br><br><a href="/" style="color:#22d3ee">Retour</a><br><br><small>Vérifie epic_config.json + redirect URI sur dev.epicgames.com</small>';
+  let help = 'Vérifie epic_config.json + redirect URI sur dev.epicgames.com';
+  if(/invalid_client/i.test(err)) help = '<b>invalid_client</b> = Epic ne reconnait pas ce client. Verifie : 1) ID recopie au caractere pres, 2) client de type <b>Authorization Code</b> (section Epic Account Services, pas EOS Game Services), 3) redirect URI enregistree exactement.';
+  if(/redirect_uri|mismatch/i.test(err)) help = 'Redirect URI non enregistree : ajoute EXACTEMENT <code>http://localhost:8000/auth/callback</code> dans ton Client Epic.';
+  document.getElementById('box').innerHTML = '❌ <b>Échec connexion Epic</b><br>Erreur: '+String(err).slice(0,400)+'<br><br><a href="/" style="color:#22d3ee">Retour</a><br><br><small>'+help+'</small>';
 }
 </script>
 </body>

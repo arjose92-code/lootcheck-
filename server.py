@@ -36,6 +36,8 @@ EPIC_USERINFO = "https://api.epicgames.dev/epic/oauth/v2/userInfo"
 
 # sessions en mémoire: {session_id: {...}} -> multi-utilisateurs (1 session par login, cookie HttpOnly)
 SESSIONS = {}
+# logins en cours (state -> code_verifier PKCE)
+PENDING = {}
 
 def load_config():
     # Priorité aux variables d'environnement (prod Render/Railway) puis epic_config.json (local)
@@ -124,13 +126,23 @@ class Handler(SimpleHTTPRequestHandler):
             if not cid or cid.startswith("TON_"):
                 return self.send_json({"error": "EPIC_CLIENT_ID manquant. Remplis epic_config.json (voir epic_config.EXEMPLE.json + README-EPIC-OAUTH.md)"}, 500)
             scope = cfg.get("SCOPE", "basic_profile")
+            # PKCE (marche avec clients publics ET confidentiels)
+            import hashlib
+            verifier = secrets.token_urlsafe(64)[:128]
+            challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip("=")
+            state = secrets.token_hex(8)
+            PENDING[state] = verifier
             params = urllib.parse.urlencode({
                 "client_id": cid,
                 "response_type": "code",
                 "scope": scope,
                 "redirect_uri": redir,
+                "state": state,
+                "code_challenge": challenge,
+                "code_challenge_method": "S256",
             })
             self.send_response(302)
+            self.send_header("Set-Cookie", f"lootcheck_oauth={state}; Path=/; HttpOnly; Max-Age=600")
             self.send_header("Location", f"{EPIC_AUTHORIZE}?{params}")
             self.end_headers()
             return
@@ -138,7 +150,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/auth/callback":
             qs = urllib.parse.parse_qs(parsed.query)
             if qs.get("error"):
-                html = f"<h1>❌ Connexion Epic refusée</h1><p>{qs.get('error_description', qs.get('error'))}</p><a href='/'>Retour</a>"
+                err = (qs.get("error") or ["?"])[0]
+                desc = (qs.get("error_description") or [""])[0]
+                html = f"<h1>Connexion Epic refusee</h1><p><b>{err}</b> : {desc}</p><p>Cause probable : mauvais type de client (il faut Authorization Code), redirect URI non enregistree, ou client ID invalide.</p><a href='/'>Retour</a>"
                 body = html.encode("utf-8")
                 self.send_response(400)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -147,17 +161,28 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.write(body)
                 return
             code = (qs.get("code") or [None])[0]
+            state = (qs.get("state") or [None])[0]
+            # retrouve le verifier PKCE via cookie ou state
+            verifier = None
+            cookie = self.headers.get("Cookie", "")
+            for part in cookie.split(";"):
+                part = part.strip()
+                if part.startswith("lootcheck_oauth="):
+                    verifier = PENDING.pop(part.split("=", 1)[1], None)
+            if not verifier and state:
+                verifier = PENDING.pop(state, None)
             if not code:
                 self.send_response(302)
                 self.send_header("Location", "/callback.html?error=no_code")
                 self.end_headers()
                 return
             try:
-                sess = self.exchange_code(code)
+                sess = self.exchange_code(code, verifier)
             except Exception as e:
                 print("[ERREUR TOKEN]", e)
+                safe = str(e).replace("<", "&lt;")[:500]
                 self.send_response(302)
-                self.send_header("Location", "/callback.html?error=token_failed")
+                self.send_header("Location", "/callback.html?error=" + urllib.parse.quote_plus(safe))
                 self.end_headers()
                 return
             sid = save_session(sess)
@@ -169,23 +194,29 @@ class Handler(SimpleHTTPRequestHandler):
 
         return super().do_GET()
 
-    def exchange_code(self, code):
+    def exchange_code(self, code, verifier=None):
         cfg = load_config()
         cid = cfg["EPIC_CLIENT_ID"].strip()
-        csec = cfg["EPIC_CLIENT_SECRET"].strip()
+        csec = (cfg.get("EPIC_CLIENT_SECRET") or "").strip()
         redir = cfg.get("REDIRECT_URI", f"http://localhost:{PORT}/auth/callback").strip()
 
-        basic = base64.b64encode(f"{cid}:{csec}".encode()).decode()
-        data = urllib.parse.urlencode({
+        body = {
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": redir,
-        }).encode()
+        }
+        if verifier:
+            body["code_verifier"] = verifier
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        if csec and not csec.startswith("TON_"):
+            # client confidentiel : auth Basic
+            headers["Authorization"] = "Basic " + base64.b64encode(f"{cid}:{csec}".encode()).decode()
+        else:
+            # client public : client_id dans le body (PKCE obligatoire)
+            body["client_id"] = cid
+        data = urllib.parse.urlencode(body).encode()
 
-        req = urllib.request.Request(EPIC_TOKEN, data=data, method="POST", headers={
-            "Authorization": f"Basic {basic}",
-            "Content-Type": "application/x-www-form-urlencoded",
-        })
+        req = urllib.request.Request(EPIC_TOKEN, data=data, method="POST", headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=20) as r:
                 tok = json.loads(r.read().decode())
